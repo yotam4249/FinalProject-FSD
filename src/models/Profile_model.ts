@@ -4,8 +4,8 @@ export interface IProfile {
     userId: mongoose.Types.ObjectId;
     name: string;
     bio?: string;     // Short bio of the user
-    avatar?: string;    // URL to the profile picture
-    interests?: string[]; // List of interests
+    avatar?: string;    // profile picture
+    interests?: string[]; // List of interests of the user (e.g. ["bars", "clubs", "restaurants"])
     createdAt?: Date;   // Date when the profile was created
   }
   

@@ -6,7 +6,7 @@ const port = process.env.PORT
 initApp().then((app)=>{
     app.listen(port,()=>{
         console.log(`server is on port ${port}`)
-        console.log("http")
+        console.log(`app listening at http://localhost:${port}`);
     });
 })
 // app.listen(port,()=>{
