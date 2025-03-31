@@ -47,10 +47,10 @@ const register = async (req:Request,res:Response)=>{
         const existingEmail = await userModel.findOne({email:req.body.email})
         if(existingEmail)
         {
-            res.status(400).send('Email is already taken')
+            return res.status(400).send('Email is already taken')
         }
         if(existingUsername){
-            res.status(400).send('Username is already taken')
+            return res.status(400).send('Username is already taken')
         }
         const data = req.body
         const user = await userModel.create({

@@ -58,4 +58,32 @@ describe('User tests',()=>{
         const response = await request(app).post(baseUrl+"/register").send(testUser)
         expect(response.statusCode).not.toBe(200)
     })
+    test("Auth test login", async ()=>{
+        const response = await request(app).post(baseUrl+"/login").send(testUser)
+        expect(response.statusCode).toBe(200)
+        const accessToken = response.body.accessToken
+        const refreshToken = response.body.refreshToken
+        expect(accessToken).toBeDefined()
+        expect(refreshToken).toBeDefined()
+        expect(response.body._id).toBeDefined()
+        testUser.accessToken = accessToken
+        testUser.refreshToken = refreshToken
+        testUser._id = response.body._id
+    })
+    test("Auth test login bad info", async ()=>{
+        const response = await request(app).post(baseUrl+"/login").send({
+            email:"",
+            password:""
+        })
+        expect(response.statusCode).not.toBe(200)
+    })
+
+    test("Auth test login bad info pass", async ()=>{
+        const response = await request(app).post(baseUrl+"/login").send({
+            email:"test@user.com",
+            password:"123456",
+        
+        })
+        expect(response.statusCode).not.toBe(200)
+    })
 })
