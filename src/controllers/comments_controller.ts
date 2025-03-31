@@ -39,7 +39,7 @@ class CommentsController extends BaseController {
 
       res.status(201).json(newComment);
     } catch (err) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json({ error: err instanceof Error ? err.message : "An unknown error occurred"  });
     }
   }
 }

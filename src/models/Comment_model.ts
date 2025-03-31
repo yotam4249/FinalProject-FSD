@@ -8,6 +8,7 @@ export interface IComment extends Document {
   replies: Types.ObjectId[];         // replies to this comment
   likes: Types.ObjectId[];           // users who liked the comment
   createdAt: Date;
+  isDeleted?: boolean;
 }
 
 const commentSchema = new Schema<IComment>(
@@ -22,10 +23,14 @@ const commentSchema = new Schema<IComment>(
 
     // Likes system
     likes: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+
+    isDeleted: { type: Boolean, default: false },
   },
   {
     timestamps: { createdAt: true, updatedAt: false },
   }
 );
+commentSchema.index({ text: "text" });
+
 
 export default model<IComment>('Comment', commentSchema);

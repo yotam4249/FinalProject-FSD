@@ -42,7 +42,7 @@ class PostsController extends BaseController {
       });
       res.status(201).json(post);
     } catch (err) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json({  error: err instanceof Error ? err.message : "An unknown error occurred"  });
     }
   }
 }

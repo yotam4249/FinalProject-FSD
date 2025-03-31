@@ -23,7 +23,11 @@ export default class BaseController {
       const items = await query.lean();
       res.status(200).json(items);
     } catch (err) {
-      res.status(400).json({ error: err.message });
+      if (err instanceof Error) {
+        res.status(400).json({ error: err instanceof Error ? err.message : "An unknown error occurred" });
+      } else {
+        res.status(400).json({ error: "An unknown error occurred" });
+      }
     }
   }
 
@@ -39,7 +43,7 @@ export default class BaseController {
       if (!item) return res.status(404).send("not found");
       res.status(200).json(item);
     } catch (err) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json({ error: err instanceof Error ? err.message : "An unknown error occurred" });
     }
   }
 
@@ -48,7 +52,7 @@ export default class BaseController {
       const newItem = await this.model.create(req.body);
       res.status(201).json(newItem);
     } catch (err) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json({ error: err instanceof Error ? err.message : "An unknown error occurred"  });
     }
   }
 
@@ -58,7 +62,7 @@ export default class BaseController {
       if (!updated) return res.status(404).send("not found");
       res.status(200).json(updated);
     } catch (err) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json({ error: err instanceof Error ? err.message : "An unknown error occurred"  });
     }
   }
 
@@ -72,7 +76,7 @@ export default class BaseController {
       if (!deleted) return res.status(404).send("not found");
       res.status(200).json({ message: "Soft deleted successfully" });
     } catch (err) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json({  error: err instanceof Error ? err.message : "An unknown error occurred" });
     }
   }
 
@@ -81,7 +85,7 @@ export default class BaseController {
       await this.model.updateMany({}, { isDeleted: true });
       res.status(200).json({ message: "All items soft deleted" });
     } catch (err) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json({ error: err instanceof Error ? err.message : "An unknown error occurred"  });
     }
   }
 
@@ -102,7 +106,7 @@ export default class BaseController {
       await item.save();
       res.status(200).json({ likes: item.likes });
     } catch (err) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json({  error: err instanceof Error ? err.message : "An unknown error occurred"  });
     }
   }
 
@@ -110,12 +114,12 @@ export default class BaseController {
     try {
       const { q } = req.query;
       const items = await this.model.find({
-        $text: { $search: q },
+        $text: { $search: typeof q === 'string' ? q : '' },
         isDeleted: { $ne: true },
       }).lean();
       res.status(200).json(items);
     } catch (err) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json({ error: err instanceof Error ? err.message : "An unknown error occurred"  });
     }
   }
 }
