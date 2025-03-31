@@ -13,6 +13,7 @@ export interface IUser extends Document {
   interests?: string[];
   profileImage?: string;
   isPremium?: boolean;
+  id?:string
 }
 
 const userSchema = new Schema<IUser>(
