@@ -15,6 +15,7 @@ export interface IPost extends Document {
   eventId?: Types.ObjectId;
   expiresAt:Date
   isDeleted?: boolean;
+  comments: Types.ObjectId[];
 }
 
 const postSchema = new Schema<IPost>(
@@ -32,6 +33,7 @@ const postSchema = new Schema<IPost>(
     eventId: { type: Schema.Types.ObjectId, ref: 'Event' },
     expiresAt: { type: Date, required: true },
     isDeleted: { type: Boolean, default: false },
+    comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
   },
   { timestamps: true }
 );

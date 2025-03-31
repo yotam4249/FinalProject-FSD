@@ -185,7 +185,8 @@ export class AuthController{
             res.status(401).send('Access denied')
             return
         }
-        req.params.userId = (payload as Payload)._id 
+        (req as any).user = { _id: (payload as Payload)._id };
+
         next()
     })
 }

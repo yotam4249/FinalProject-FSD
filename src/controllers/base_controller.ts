@@ -1,51 +1,43 @@
 
 import { Request, Response } from "express";
-import { Model } from "mongoose";
+import { Model, PopulateOptions } from "mongoose";
 
 export default class BaseController {
   protected model: Model<any>;
-  protected populatePaths?: any[];
+  protected populatePaths: (string | PopulateOptions)[];
 
-  constructor(model: Model<any>, populatePaths?: any[]) {
+  constructor(model: Model<any>, populatePaths: (string | PopulateOptions)[] = []) {
     this.model = model;
     this.populatePaths = populatePaths;
   }
 
-
   async getAll(req: Request, res: Response) {
     try {
-      let query = this.model.find({ isDeleted: { $ne: true } });
-      if (this.populatePaths) {
-        for (const path of this.populatePaths) {
-          query = query.populate(path);
-        }
-      }
-      const items = await query.lean();
+      const items = await this.model
+        .find({ isDeleted: { $ne: true } })
+        .populate(this.populatePaths);
       res.status(200).json(items);
     } catch (err) {
-      if (err instanceof Error) {
-        res.status(400).json({ error: err instanceof Error ? err.message : "An unknown error occurred" });
-      } else {
-        res.status(400).json({ error: "An unknown error occurred" });
-      }
+      console.error("❌ getAll error:", err);
+      res.status(400).json({ error: err instanceof Error ? err.message : "Unknown error" });
     }
   }
 
   async getById(req: Request, res: Response) {
     try {
-      let query = this.model.findOne({ _id: req.params.id, isDeleted: { $ne: true } });
-      if (this.populatePaths) {
-        for (const path of this.populatePaths) {
-          query = query.populate(path);
-        }
+      const item = await this.model
+        .findById(req.params.id)
+        .populate(this.populatePaths);
+      if (!item || item.isDeleted) {
+        return res.status(404).send("Not found");
       }
-      const item = await query.lean();
-      if (!item) return res.status(404).send("not found");
       res.status(200).json(item);
     } catch (err) {
-      res.status(400).json({ error: err instanceof Error ? err.message : "An unknown error occurred" });
+      console.error("❌ getById error:", err);
+      res.status(400).json({ error: err instanceof Error ? err.message : "Unknown error" });
     }
   }
+
 
   async create(req: Request, res: Response) {
     try {
@@ -94,7 +86,7 @@ export default class BaseController {
       const item = await this.model.findById(req.params.id);
       if (!item) return res.status(404).send("not found");
 
-      const userId = req.body.userId;
+      const userId = (req as any).user._id;
       const index = item.likes.indexOf(userId);
 
       if (index === -1) {

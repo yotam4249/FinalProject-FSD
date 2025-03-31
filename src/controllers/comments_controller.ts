@@ -2,6 +2,7 @@
 import { Request, Response } from "express";
 import Comment from "../models/Comment_model";
 import BaseController from "./base_controller";
+import Post from "../models/Post_model";
 
 class CommentsController extends BaseController {
   constructor() {
@@ -19,29 +20,39 @@ class CommentsController extends BaseController {
   }
 
   async create(req: Request, res: Response) {
-    const { text, postId, owner, parentComment } = req.body;
-
+    const { text, post, parentComment } = req.body;
+  
     try {
       const newComment = await this.model.create({
         text,
-        postId,
-        owner,
+        post,
+        user: (req as any).user._id,
         parentComment,
         replies: [],
         likes: []
       });
-
+  
       if (parentComment) {
         await this.model.findByIdAndUpdate(parentComment, {
           $push: { replies: newComment._id }
         });
       }
-
+  
+      // Add to post's comments array
+      await Post.findByIdAndUpdate(post, {
+        $push: { comments: newComment._id }
+      });
+  
       res.status(201).json(newComment);
     } catch (err) {
-      res.status(400).json({ error: err instanceof Error ? err.message : "An unknown error occurred"  });
+      console.error("Create comment error:", err);
+      res.status(400).json({
+        error: err instanceof Error ? err.message : "An unknown error occurred"
+      });
     }
   }
-}
+   }
+
+  
 
 export default new CommentsController();

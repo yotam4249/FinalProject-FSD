@@ -3,6 +3,9 @@ const router= express.Router();
 import PostsController from "../controllers/posts_contoroller"
 import { AuthController } from "../controllers/auth_controller";
 
+const authController = new AuthController()
+const authMiddleware = authController.authMiddleware.bind(authController)
+
 router.get("/", PostsController.getAll.bind(PostsController));
 router.get("/:id", PostsController.getById.bind(PostsController));
 router.post("/",authMiddleware, PostsController.create.bind(PostsController));

@@ -1,6 +1,10 @@
 import express from "express";
 const router= express.Router();
 import CommentsController from "../controllers/comments_controller" 
+import {AuthController} from "../controllers/auth_controller"
+
+const authController = new AuthController()
+const authMiddleware = authController.authMiddleware.bind(authController)
 
 
 

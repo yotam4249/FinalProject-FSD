@@ -1,18 +1,18 @@
 import request from "supertest";
 import initApp from "../server";
 import mongoose from "mongoose";
-import Post from "../models/Post_model";
 import { Express } from "express";
-import userModel, { IUser } from "../models/User_model";
 
-let app:Express;
+let app: Express;
 let accessToken: string;
 let userId: string;
 let postId: string;
 let commentId: string;
 
 beforeAll(async () => {
-    app = await initApp();
+  app = await initApp();
+
+  // Register and login
   await request(app).post("/auth/register").send({
     username: "testuser2",
     email: "test2@example.com",
@@ -27,25 +27,26 @@ beforeAll(async () => {
   accessToken = loginRes.body.accessToken;
   userId = loginRes.body._id;
 
+  // Create post
   const postRes = await request(app)
     .post("/posts")
     .set("Authorization", `Bearer ${accessToken}`)
     .send({
       content: "Another test post",
-      owner: userId,
+      user: userId,
       imageUrl: "img2.jpg",
       location: { type: "Point", coordinates: [3, 4] }
     });
 
   postId = postRes.body._id;
 
+  // Create comment
   const commentRes = await request(app)
     .post("/comments")
     .set("Authorization", `Bearer ${accessToken}`)
     .send({
       text: "This is a test comment",
-      postId,
-      owner: userId
+      post: postId,
     });
 
   commentId = commentRes.body._id;
@@ -66,9 +67,7 @@ test("should GET comment by id", async () => {
 test("should LIKE the comment", async () => {
   const res = await request(app)
     .post(`/comments/${commentId}/like`)
-    .set("Authorization", `Bearer ${accessToken}`)
-    .send({ userId });
-
+    .set("Authorization", `Bearer ${accessToken}`);
   expect(res.status).toBe(200);
   expect(res.body.likes.includes(userId)).toBe(true);
 });
@@ -76,9 +75,7 @@ test("should LIKE the comment", async () => {
 test("should UNLIKE the comment", async () => {
   const res = await request(app)
     .post(`/comments/${commentId}/like`)
-    .set("Authorization", `Bearer ${accessToken}`)
-    .send({ userId });
-
+    .set("Authorization", `Bearer ${accessToken}`);
   expect(res.status).toBe(200);
   expect(res.body.likes.includes(userId)).toBe(false);
 });
@@ -99,4 +96,8 @@ test("should SOFT DELETE the comment", async () => {
 test("should NOT return deleted comment in GET all", async () => {
   const res = await request(app).get("/comments");
   expect(res.body.some((c: { _id: string }) => c._id === commentId)).toBe(false);
+});
+
+afterAll(async () => {
+  await mongoose.connection.close();
 });
