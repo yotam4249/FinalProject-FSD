@@ -36,13 +36,15 @@ type Payload = {
 
 const register = async (req:Request,res:Response)=>{
     try{
+        console.log("user is       ",req.body)
         const salt = await bcrypt.genSalt(10)
+        console.log("salt:", salt)
         const hashedPassword = await bcrypt.hash(req.body.password,salt)
         if(!req.body.profileImage){
             req.body.profileImage = ".../public/photos/avatar.png"
         }
-        const existingUsername = await userModel.find({username:req.body.username})
-        const existingEmail = await userModel.find({emial:req.body.email})
+        const existingUsername = await userModel.findOne({username:req.body.username})
+        const existingEmail = await userModel.findOne({email:req.body.email})
         if(existingEmail)
         {
             res.status(400).send('Email is already taken')
