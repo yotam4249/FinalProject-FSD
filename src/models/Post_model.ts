@@ -1,39 +1,40 @@
-import mongoose from "mongoose";
-   
-export interface IPost {
+
+import { Schema, model, Document, Types } from 'mongoose';
+
+export interface IPost extends Document {
+  user: Types.ObjectId;
   content: string;
-  mediaUrl?: string;
-  location?: {
-    type: string;
+  imageUrl?: string;
+  location: {
+    type: 'Point';
     coordinates: [number, number];
+    altitude?: number;
+    floor?: number;
   };
-  author: mongoose.Types.ObjectId;
-  likes: mongoose.Types.ObjectId[];
-  comments: mongoose.Types.ObjectId[];
-  expiresAt?: Date;
-  createdAt?: Date;
+  likes: Types.ObjectId[];
+  eventId?: Types.ObjectId;
+  expiresAt:Date
 }
 
-const postSchema = new mongoose.Schema<IPost>({
-  content: { type: String, required: true },
-  mediaUrl: { type: String },
-  location: {
-    type: {
-      type: String,
-      enum: ["Point"],
-      default: "Point",
+const postSchema = new Schema<IPost>(
+  {
+    user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    content: { type: String },
+    imageUrl: { type: String },
+    location: {
+      type: { type: String, enum: ['Point'], required: true },
+      coordinates: { type: [Number], required: true },
+      altitude: { type: Number },
+      floor: { type: Number },
     },
-    coordinates: {
-      type: [Number],
-      default: undefined,
-    },
+    likes: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    eventId: { type: Schema.Types.ObjectId, ref: 'Event' },
+    expiresAt: { type: Date, required: true },
   },
-  author: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-  comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
-  expiresAt: { type: Date, default: () => new Date(Date.now() + 24 * 60 * 60 * 1000) },
-  createdAt: { type: Date, default: Date.now },
-});
+  { timestamps: true }
+);
 
-const postModel = mongoose.model<IPost>("Post", postSchema);
-export default postModel;
+postSchema.index({ location: '2dsphere' });
+postSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+
+export default model<IPost>('Post', postSchema);

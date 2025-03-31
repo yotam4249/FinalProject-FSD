@@ -1,44 +1,39 @@
-import mongoose from "mongoose";
 
-export interface IEvent {
-  title: string;
-  description: string;
+import { Schema, model, Document, Types } from 'mongoose';
+
+export interface IEvent extends Document {
+  name: string;
+  host: Types.ObjectId;
   location: {
-    //Each event must include a location
-    type: string;
+    type: 'Point';
     coordinates: [number, number];
+    altitude?: number;
+    floor?: number;
   };
   startTime: Date;
-  endTime: Date;
-  createdBy: mongoose.Types.ObjectId;
-  participants: mongoose.Types.ObjectId[];
-  createdAt?: Date;
+  expiresAt: Date;
+  participants: Types.ObjectId[];
+  description?: string;
 }
 
-const eventSchema = new mongoose.Schema<IEvent>({
-  title: { type: String, required: true },
-  description: { type: String },
-  location: {
-    type: {
-      type: String,
-      enum: ["Point"],
-      default: "Point",
+const eventSchema = new Schema<IEvent>(
+  {
+    name: { type: String, required: true },
+    host: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    location: {
+      type: { type: String, enum: ['Point'], required: true },
+      coordinates: { type: [Number], required: true },
+      altitude: { type: Number },
+      floor: { type: Number },
     },
-    coordinates: {
-      type: [Number],
-      required: true,
-    },
+    startTime: { type: Date, required: true },
+    expiresAt: { type: Date, required: true },
+    participants: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    description: String,
   },
-  startTime: { type: Date, required: true },
-  endTime: { type: Date, required: true },
-  createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
-  participants: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-  createdAt: { type: Date, default: Date.now },
-});
+  { timestamps: true }
+);
 
-const eventModel = mongoose.model<IEvent>("Event", eventSchema);
-export default eventModel;
+eventSchema.index({ location: '2dsphere' });
+
+export default model<IEvent>('Event', eventSchema);

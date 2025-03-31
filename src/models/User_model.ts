@@ -1,43 +1,37 @@
-import mongoose from "mongoose";
 
-export interface IUser {
+import { Schema, model, Document } from 'mongoose';
+
+export interface IUser extends Document {
   username: string;
   email: string;
   password: string;
-  picture?: string;
-  _id?: mongoose.Types.ObjectId;
   refreshTokens?: string[];
-  location?: {
-    type: string;
-    coordinates: [number, number];
-  };
-  isLocationVisible?: boolean;
-  createdAt?: Date;
+  phone?: string;
+  bio?: string;
+  age?: number;
+  gender?: string;
+  interests?: string[];
+  profileImage?: string;
+  isBusiness?: boolean;
+  isPremium?: boolean;
 }
 
-const userSchema = new mongoose.Schema<IUser>({
-  username: { type: String, required: true, unique: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  picture: { type: String, default: "../../public/photos/avatar.png" },
-  refreshTokens: { type: [String], default: [] },
-  location: {
-    type: {
-      type: String,
-      enum: ["Point"], // Geography according to GeoJSON
-      default: "Point",
-    },
-    coordinates: {
-      type: [Number], // array of coordinates: [longitude, latitude]
-      default: undefined,
-    },
+const userSchema = new Schema<IUser>(
+  {
+    username: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true },
+    phone: { type: String },
+    password: { type: String, required: true },
+    refreshTokens: { type: [String], default: [] },
+    bio: String,
+    age: Number,
+    gender: String,
+    interests: [String],
+    profileImage: String,
+    isBusiness: { type: Boolean, default: false },
+    isPremium: { type: Boolean, default: false },
   },
-  isLocationVisible: {
-    type: Boolean,
-    default: false, // User privacy - default not to share location
-  },
-  createdAt: { type: Date, default: Date.now },
-});
+  { timestamps: true }
+);
 
-const userModel = mongoose.model<IUser>("User", userSchema);
-export default userModel;
+export default model<IUser>('User', userSchema);
