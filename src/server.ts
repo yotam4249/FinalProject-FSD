@@ -1,11 +1,15 @@
 import express, {Express} from "express"
-const app = express()
 import dotenv  from "dotenv" 
-dotenv.config();
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
+import authRoutes from "./routes/auth_routes"
+
+const app = express()
+dotenv.config();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
+
+app.use('/auth',authRoutes)
 
 const initApp = ()=>{
     return new Promise<Express>((resolve,reject)=>{

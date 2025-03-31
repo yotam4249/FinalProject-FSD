@@ -12,7 +12,6 @@ export interface IUser extends Document {
   gender?: string;
   interests?: string[];
   profileImage?: string;
-  isBusiness?: boolean;
   isPremium?: boolean;
 }
 
@@ -28,7 +27,6 @@ const userSchema = new Schema<IUser>(
     gender: String,
     interests: [String],
     profileImage: String,
-    isBusiness: { type: Boolean, default: false },
     isPremium: { type: Boolean, default: false },
   },
   { timestamps: true }
