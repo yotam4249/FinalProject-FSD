@@ -14,6 +14,7 @@ export interface IPost extends Document {
   likes: Types.ObjectId[];
   eventId?: Types.ObjectId;
   expiresAt:Date
+  isDeleted?: boolean;
 }
 
 const postSchema = new Schema<IPost>(
@@ -30,10 +31,11 @@ const postSchema = new Schema<IPost>(
     likes: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     eventId: { type: Schema.Types.ObjectId, ref: 'Event' },
     expiresAt: { type: Date, required: true },
+    isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
-
+postSchema.index({ content: "text", title: "text" });
 postSchema.index({ location: '2dsphere' });
 postSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
