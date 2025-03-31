@@ -1,7 +1,8 @@
 
 import { Schema, model, Document, Types } from 'mongoose';
+import { IUser } from './User_model';
 
-export interface IBusiness extends Document {
+export interface IBusiness extends IUser {
   user: Types.ObjectId;
   venueName: string;
   location: {

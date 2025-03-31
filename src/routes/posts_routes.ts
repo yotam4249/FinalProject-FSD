@@ -1,7 +1,7 @@
 import express from "express";
 const router= express.Router();
 import PostsController from "../controllers/posts_contoroller"
-import { authMiddleware } from "../controllers/auth_controller";
+import { AuthController } from "../controllers/auth_controller";
 
 router.get("/", PostsController.getAll.bind(PostsController));
 router.get("/:id", PostsController.getById.bind(PostsController));

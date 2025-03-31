@@ -1,7 +1,7 @@
 import express from "express";
 const router= express.Router();
 import CommentsController from "../controllers/comments_controller" 
-import { authMiddleware } from "../controllers/auth_controller";
+
 
 
 router.get("/", CommentsController.getAll.bind(CommentsController));
