@@ -1,6 +1,6 @@
 
 import { Schema, model, Document, Types } from 'mongoose';
-
+/////// this is for private events  (MySocialClub)
 export interface IEvent extends Document {
   name: string;
   host: Types.ObjectId;
@@ -10,6 +10,7 @@ export interface IEvent extends Document {
     altitude?: number;
     floor?: number;
   };
+  imageUrl?: String,
   startTime: Date;
   expiresAt: Date;
   participants: Types.ObjectId[];
@@ -26,6 +27,7 @@ const eventSchema = new Schema<IEvent>(
       altitude: { type: Number },
       floor: { type: Number },
     },
+    imageUrl: {type: String ,default: null}, // Default image URL
     startTime: { type: Date, required: true },
     expiresAt: { type: Date, required: true },
     participants: [{ type: Schema.Types.ObjectId, ref: 'User' }],

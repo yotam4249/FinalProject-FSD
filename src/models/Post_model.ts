@@ -5,9 +5,10 @@ export interface IPost extends Document {
   user: Types.ObjectId;
   content: string;
   imageUrl?: string;
-  location: {
+  business?: Types.ObjectId; 
+  location?: {
     type: 'Point';
-    coordinates: [number, number];
+    coordinates: [number, number];//////MAYBE CHANGE TO THE USER PLACE NAME THE PLACE NAME THAT THE USER IS INTO
     altitude?: number;
     floor?: number;
   };
@@ -23,11 +24,19 @@ const postSchema = new Schema<IPost>(
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     content: { type: String },
     imageUrl: { type: String },
+    business: { type: Schema.Types.ObjectId, ref: 'Business'},
     location: {
-      type: { type: String, enum: ['Point'], required: true },
-      coordinates: { type: [Number], required: true },
-      altitude: { type: Number },
-      floor: { type: Number },
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: 'Point'
+      },
+      coordinates: {
+        type: [Number],
+        default: [0, 0]
+      },
+      altitude: Number,
+      floor: Number
     },
     likes: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     eventId: { type: Schema.Types.ObjectId, ref: 'Event' },
