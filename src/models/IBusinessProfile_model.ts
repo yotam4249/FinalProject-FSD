@@ -3,7 +3,7 @@ import { Schema, model, Document, Types } from 'mongoose';
 import { IUser } from './User_model';
 
 export interface IBusiness extends IUser {
-  user: Types.ObjectId;
+  user: IUser;
   venueName: string;
   location: {
     type: 'Point';
@@ -17,6 +17,7 @@ export interface IBusiness extends IUser {
   };
   description?: string;
   promotions: Types.ObjectId[];
+  
 }
 
 const businessSchema = new Schema<IBusiness>(

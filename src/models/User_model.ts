@@ -8,11 +8,12 @@ export interface IUser extends Document {
   refreshTokens?: string[];
   phone?: string;
   bio?: string;
-  age?: number;
+  dateOfBirth?: Date;
   gender?: string;
   interests?: string[];
   profileImage?: string;
   isPremium?: boolean;
+  premiumValidUntil?:Date
   id?:string
 }
 
@@ -24,10 +25,11 @@ const userSchema = new Schema<IUser>(
     password: { type: String, required: true },
     refreshTokens: { type: [String], default: [] },
     bio: String,
-    age: Number,
+    dateOfBirth: Date,
     gender: String,
     interests: [String],
     profileImage: String,
+    premiumValidUntil: {type:Date , default:null},
     isPremium: { type: Boolean, default: false },
   },
   { timestamps: true }

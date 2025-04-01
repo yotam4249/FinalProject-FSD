@@ -9,6 +9,87 @@ type Payload = {
 export class AuthController{
     protected model = userModel;
 
+    constructor() {
+        this.register = this.register.bind(this);
+      }
+
+    // protected async createUserFromData(data: any) {
+    //     try {
+    //         console.log("📨 Incoming registration data:", data);
+    
+    //         const salt = await bcrypt.genSalt(10);
+    //         const hashedPassword = await bcrypt.hash(data.password, salt);
+    
+    //         const existingUsername = await this.model.findOne({ username: data.username });
+    //         const existingEmail = await this.model.findOne({ email: data.email });
+    
+    //         if (existingEmail) throw new Error('Email is already taken');
+    //         if (existingUsername) throw new Error('Username is already taken');
+    
+    //         const user = await this.model.create({
+    //             username: data.username,
+    //             password: hashedPassword,
+    //             email: data.email,
+    //             phone: data.phone,
+    //             profileImage: data.profileImage || '.../public/photos/avatar.png',
+    //             bio: data.bio,
+    //             dateOfBirth: data.dateOfBirth,
+    //             gender: data.gender,
+    //             interests: data.interests,
+    //             isPremium: data.isPremium
+    //         });
+    
+    //         console.log("✅ User created:", user._id);
+    //         return user;
+    //     } catch (err) {
+    //         console.error("❌ Error in createUserFromData:", err);
+    //         throw err;
+    //     }
+    // }
+    protected async createUserFromData(data: any) {
+        const { email, username, password, phone } = data;
+      
+        if (!email || !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+          throw new Error("Invalid email format");
+        }
+      
+        if (!phone || phone.length < 6) {
+          throw new Error("Phone number is too short");
+        }
+      
+        if (!password) {
+          throw new Error("Password is required");
+        }
+      
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+      
+        const existingUsername = await this.model.findOne({ username });
+        const existingEmail = await this.model.findOne({ email });
+      
+        if (existingEmail) throw new Error("Email is already taken");
+        if (existingUsername) throw new Error("Username is already taken");
+      
+        const user = await this.model.create({
+          username,
+          password: hashedPassword,
+          email,
+          phone,
+          profileImage: data.profileImage || '.../public/photos/avatar.png',
+          bio: data.bio,
+          dateOfBirth: data.dateOfBirth,
+          gender: data.gender,
+          interests: data.interests,
+          isPremium: data.isPremium
+        });
+      
+        return user;
+      }
+      
+    
+      
+    
+
     protected generateTokens = (_id:string):{accessToken:string,refreshToken:string}| null =>{
 
         const JWT_SECRET = process.env.TOKEN_SECRET;
@@ -37,37 +118,52 @@ export class AuthController{
         return { accessToken, refreshToken };
     }
 
-    public  register = async (req:Request,res:Response)=>{
-        try{
-            console.log("user is       ",req.body)
-            const salt = await bcrypt.genSalt(10)
-            console.log("salt:", salt)
-            const hashedPassword = await bcrypt.hash(req.body.password,salt)
-            if(!req.body.profileImage){
-                req.body.profileImage = ".../public/photos/avatar.png"
-            }
-            const existingUsername = await userModel.findOne({username:req.body.username})
-            const existingEmail = await userModel.findOne({email:req.body.email})
-            if(existingEmail)
-            {
-                return res.status(400).send('Email is already taken')
-            }
-            if(existingUsername){
-                return res.status(400).send('Username is already taken')
-            }
-            const data = req.body
-            const user = await userModel.create({
-                username:data.username,
-                password:hashedPassword,
-                email:data.email,
-                phone:data.phone,
-                profileImage:data.profileImage
-            })
-            res.status(201).json(user)
-        }catch(err){
-            res.status(500).send('Server error')
+    // public  register = async (req:Request,res:Response)=>{
+    //     try{
+    //         const salt = await bcrypt.genSalt(10)
+    //         const hashedPassword = await bcrypt.hash(req.body.password,salt)
+    //         if(!req.body.profileImage){
+    //             req.body.profileImage = ".../public/photos/avatar.png"
+    //         }
+    //         const existingUsername = await userModel.findOne({username:req.body.username})
+    //         const existingEmail = await userModel.findOne({email:req.body.email})
+    //         if(existingEmail)
+    //         {
+    //             return res.status(400).send('Email is already taken')
+    //         }
+    //         if(existingUsername){
+    //             return res.status(400).send('Username is already taken')
+    //         }
+    //         const data = req.body
+    //         const user = await userModel.create({
+    //             username:data.username,
+    //             password:hashedPassword,
+    //             email:data.email,
+    //             phone:data.phone,
+    //             profileImage:data.profileImage,
+    //             bio:data.bio,
+    //             dateOfBirth:data.dateOfBirth,
+    //             gender:data.gender,
+    //             interests:data.interests,
+    //             isPremium:data.isPremium
+    //         })
+    //         res.status(201).json(user)
+    //     }catch(err){
+    //         res.status(500).send('Server error')
+    //     }
+    // }
+    public async register(req: Request, res: Response) {
+        try {
+          console.log("🚀 Reached register()", req.body); // log request body
+          const user = await this.createUserFromData(req.body);
+          res.status(201).json(user);
+        } catch (err: any) {
+          console.error("❌ Error in register():", err);
+          res.status(400).send(err.message || 'Server error');
         }
     }
+      
+
 
     public login = async(req:Request,res:Response)=>{
         try{
