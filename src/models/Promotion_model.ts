@@ -1,35 +1,30 @@
-
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document, Types } from "mongoose";
 
 export interface IPromotion extends Document {
-  business: Types.ObjectId;
   title: string;
-  description: string;
-  validUntil: Date;
-  location: {
-    type: 'Point';
-    coordinates: [number, number];
-    altitude?: number;
-    floor?: number;
-  };
+  description?: string;
+  image?: string;
+  startDate: Date;
+  endDate: Date;
+  business: Types.ObjectId;
+  likes: Types.ObjectId[];
+  isDeleted?: boolean;
 }
 
 const promotionSchema = new Schema<IPromotion>(
   {
-    business: { type: Schema.Types.ObjectId, ref: 'Business', required: true },
     title: { type: String, required: true },
     description: String,
-    validUntil: { type: Date, required: true },
-    location: {
-      type: { type: String, enum: ['Point'], required: true },
-      coordinates: { type: [Number], required: true },
-      altitude: { type: Number },
-      floor: { type: Number },
-    },
+    image: String,
+    startDate: { type: Date, required: true },
+    endDate: { type: Date, required: true },
+    business: { type: Schema.Types.ObjectId, ref: "Business", required: true },
+    likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
 
-promotionSchema.index({ location: '2dsphere' });
+promotionSchema.index({ title: "text", description: "text" });
 
-export default model<IPromotion>('Promotion', promotionSchema);
+export default model<IPromotion>("Promotion", promotionSchema);
