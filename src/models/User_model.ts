@@ -1,6 +1,11 @@
 
 import { Schema, model, Document } from 'mongoose';
 
+type MiniUser = {
+  username: string;
+  profileImage?: string;
+};
+
 export interface IUser extends Document {
   username: string;
   email: string;
@@ -15,7 +20,17 @@ export interface IUser extends Document {
   isPremium?: boolean;
   premiumValidUntil?:Date
   id?:string
+  following: MiniUser[]
+  followers: MiniUser[]
 }
+
+const miniUserSchema = new Schema<MiniUser>(
+  {
+    username: { type: String, required: true },
+    profileImage: { type: String },
+  },
+  { _id: false }
+);
 
 const userSchema = new Schema<IUser>(
   {
@@ -31,6 +46,8 @@ const userSchema = new Schema<IUser>(
     profileImage: String,
     premiumValidUntil: {type:Date , default:null},
     isPremium: { type: Boolean, default: false },
+    followers: { type: [miniUserSchema], default: [] },
+    following: { type: [miniUserSchema], default: [] },
   },
   { timestamps: true }
 );
