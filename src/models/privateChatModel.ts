@@ -2,7 +2,7 @@
 import { Schema, model, Document } from 'mongoose';
 import { IMessage, MessageSchema } from './messageModel';
 
-interface IPrivateChat extends Document {
+export interface IPrivateChat extends Document {
   participants: [string, string]; // two user IDs
   messages: IMessage[];
 }
