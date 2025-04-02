@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { AuthController } from './auth_controller';
-import BusinessModel from '../models/IBusinessProfile_model';
+import BusinessModel from '../models/businessProfileModel';
 
 export class BusinessAuthController extends AuthController {
     public async register(req: Request, res: Response) {

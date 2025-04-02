@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import Promotion from "../models/Promotion_model";
-import Business from "../models/IBusinessProfile_model";
+import Business from "../models/businessProfileModel";
 import BaseController from "./base_controller";
 
 class PromotionController extends BaseController {

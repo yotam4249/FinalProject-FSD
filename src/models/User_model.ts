@@ -1,5 +1,5 @@
 
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model, Document, Types } from 'mongoose';
 
 type MiniUser = {
   username: string;
@@ -7,6 +7,7 @@ type MiniUser = {
 };
 
 export interface IUser extends Document {
+  _id: Types.ObjectId
   username: string;
   email: string;
   password: string;

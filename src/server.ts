@@ -7,6 +7,9 @@ import postsRoutes from "./routes/posts_routes"
 import commentsRoutes from "./routes/comments_routes"
 import businessRoutes from "./routes/business_routes"
 import promotionRoutes from "./routes/promotion_routes"
+import businessChatRoutes from './routes/businessChat_routes';
+
+
 const app = express()
 dotenv.config();
 app.use(express.json())
@@ -18,6 +21,7 @@ app.use("/posts",postsRoutes);
 app.use("/comments",commentsRoutes);
 app.use("/business",businessRoutes)
 app.use("/promotions", promotionRoutes);
+app.use("/business-chats",businessChatRoutes)
 
 const initApp = ()=>{
     return new Promise<Express>((resolve,reject)=>{
