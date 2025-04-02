@@ -1,8 +1,11 @@
 
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model, Document, Types } from 'mongoose';
 import { IMessage, MessageSchema } from './messageModel';
+import { IUser } from './User_model';
 
-interface IEventChat extends Document {
+export interface IEventChat extends Document {
+  _id:Types.ObjectId
+  owner:IUser;
   eventId: string;
   messages: IMessage[];
   image?: string;
