@@ -5,7 +5,7 @@ import { IUser } from './User_model';
 
 export interface IEventChat extends Document {
   _id:Types.ObjectId
-  owner:IUser;
+  owner:string;
   eventId: string;
   messages: IMessage[];
   image?: string;
@@ -13,6 +13,7 @@ export interface IEventChat extends Document {
 
 const EventChatSchema = new Schema<IEventChat>(
   {
+    owner: { type: String, required: true }, 
     eventId: { type: String, required: true, unique: true },
     messages: [MessageSchema],
     image: { type: String, default: null }

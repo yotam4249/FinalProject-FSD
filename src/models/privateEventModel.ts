@@ -1,7 +1,7 @@
 
 import { Schema, model, Document, Types } from 'mongoose';
-/////// this is for private events  (MySocialClub)
 export interface IEvent extends Document {
+  _id:Types.ObjectId
   name: string;
   host: Types.ObjectId;
   location: {

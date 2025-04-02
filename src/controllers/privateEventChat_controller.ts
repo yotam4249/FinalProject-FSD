@@ -1,5 +1,6 @@
 // src/controllers/eventChat_controller.ts
-import EventChatModel, { IEventChat } from '../models/privateEventChatModel';
+import EventChatModel from '../models/privateEventChatModel';
+import EventModel from '../models/privateEventModel';
 import { BaseChatController } from './baseChat_controller';
 import { Request, Response } from 'express';
 import { IMessage } from '../models/messageModel';
@@ -14,6 +15,9 @@ class EventChatController extends BaseChatController<EventChatDocumentSubset> {
     super(EventChatModel as any);
   }
 
+  /**
+   * Create a new chat for an event
+   */
   public createEventChat = async (req: Request, res: Response) => {
     try {
       const { eventId, ownerId, image } = req.body;
@@ -24,7 +28,7 @@ class EventChatController extends BaseChatController<EventChatDocumentSubset> {
 
       const existingChat = await EventChatModel.findOne({ eventId });
       if (existingChat) {
-        return res.status(200).json(existingChat);
+        return res.status(400).send('Chat already exists for this event');
       }
 
       const newChat = await EventChatModel.create({
@@ -37,6 +41,45 @@ class EventChatController extends BaseChatController<EventChatDocumentSubset> {
       res.status(201).json(newChat);
     } catch (err) {
       console.error('Error creating event chat:', err);
+      res.status(500).send('Server error');
+    }
+  };
+
+  /**
+   * Send a message to an event chat
+   */
+  public sendMessage = async (req: Request, res: Response) => {
+    try {
+      const { chatId } = req.params;
+      const { senderId, content, imageUrl } = req.body;
+
+      const chat = await EventChatModel.findById(chatId);
+      if (!chat) return res.status(404).send('Chat not found');
+
+      const event = await EventModel.findById(chat.eventId);
+      if (!event) return res.status(404).send('Associated event not found');
+
+      if (event.expiresAt < new Date()) {
+        return res.status(403).send('Chat expired');
+      }
+
+      if (!chat.owner || chat.owner.toString() !== senderId.toString()) {
+        return res.status(403).send('Only the event owner can send messages');
+      }
+
+      const newMessage: IMessage = {
+        senderId,
+        content,
+        imageUrl,
+        timestamp: new Date()
+      };
+
+      chat.messages.push(newMessage);
+      await chat.save();
+
+      res.status(200).json(newMessage);
+    } catch (err) {
+      console.error('Error sending message to event chat:', err);
       res.status(500).send('Server error');
     }
   };
