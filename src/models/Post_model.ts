@@ -19,7 +19,7 @@ export interface IPost extends Document {
   comments: Types.ObjectId[];
 }
 
-const postSchema = new Schema<IPost>(
+export const postSchema = new Schema<IPost>(
   {
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     content: { type: String },

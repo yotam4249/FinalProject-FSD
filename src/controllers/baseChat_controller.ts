@@ -1,8 +1,9 @@
+// src/controllers/baseChat_controller.ts
 import { Request, Response } from 'express';
-import { Model } from 'mongoose';
-import { IMessage } from '../models/messageModel';
+import { Model, Types } from 'mongoose';
+import PostModel, { IPost } from '../models/Post_model';
 
-export abstract class BaseChatController<T extends { messages: IMessage[]; image?: string }> {
+export abstract class BaseChatController<T extends { posts: Types.ObjectId[]; image?: string }> {
   protected chatModel: Model<T>;
 
   constructor(model: Model<T>) {
@@ -16,18 +17,22 @@ export abstract class BaseChatController<T extends { messages: IMessage[]; image
 
       const chat = await this.chatModel.findById(chatId);
       if (!chat) return res.status(404).send('Chat not found');
-
-      const newMessage: IMessage = {
-        senderId,
+      if (!content) {
+        return res.status(400).send('content is required');
+      }
+      const newPost = await PostModel.create({
+        user: senderId,
         content,
         imageUrl,
-        timestamp: new Date(),
-      };
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // Default: 24 hrs
+        comments: [],
+        likes: [],
+      });
 
-      chat.messages.push(newMessage);
+      chat.posts.push(newPost._id as Types.ObjectId);
       await chat.save();
 
-      res.status(200).json(newMessage);
+      res.status(200).json(newPost);
     } catch (err) {
       console.error('Error sending message:', err);
       res.status(500).send('Server error');
@@ -37,11 +42,11 @@ export abstract class BaseChatController<T extends { messages: IMessage[]; image
   public getMessages = async (req: Request, res: Response) => {
     try {
       const { chatId } = req.params;
-      const chat = await this.chatModel.findById(chatId);
+      const chat = await this.chatModel.findById(chatId).populate('posts');
 
       if (!chat) return res.status(404).send('Chat not found');
 
-      res.status(200).json(chat.messages);
+      res.status(200).json(chat.posts);
     } catch (err) {
       console.error('Error retrieving messages:', err);
       res.status(500).send('Server error');

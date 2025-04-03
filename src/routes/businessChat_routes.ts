@@ -13,4 +13,6 @@ router.get('/:chatId/messages', controller.getMessages);
 
 router.post('/:chatId/announcement', controller.sendAnnouncement);
 
+router.put('/:chatId/upload-image', businessChatController.uploadChatImage);
+
 export default router;

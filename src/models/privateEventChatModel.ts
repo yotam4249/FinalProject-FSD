@@ -9,7 +9,7 @@ export interface IEventChat extends Document {
   // eventId: string;
   owner: Types.ObjectId; // ✅ change to ObjectId
   eventId: Types.ObjectId; 
-  messages: IMessage[];
+  posts: Types.ObjectId[]; 
   image?: string;
 }
 
@@ -19,7 +19,7 @@ const EventChatSchema = new Schema<IEventChat>(
     // eventId: { type: String, required: true, unique: true },
     eventId: { type: Schema.Types.ObjectId, ref: 'Event', required: true, unique: true },
     owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    messages: [MessageSchema],
+    posts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
     image: { type: String, default: null }
   },
   { timestamps: true }

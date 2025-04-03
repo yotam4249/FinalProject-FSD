@@ -1,4 +1,3 @@
-// src/tests/privateChat.test.ts
 import request from 'supertest';
 import mongoose from 'mongoose';
 import initApp from '../server';
@@ -44,7 +43,9 @@ describe('PrivateChatController', () => {
     });
 
     expect(res.status).toBe(201);
-    expect(res.body.participants).toEqual(expect.arrayContaining([user1Id, user2Id]));
+    expect(res.body.participants.map((id: any) => id.toString())).toEqual(
+      expect.arrayContaining([user1Id, user2Id])
+    );
 
     chatId = res.body._id;
   });
@@ -80,4 +81,25 @@ describe('PrivateChatController', () => {
     const res = await request(app).get('/private-chats/000000000000000000000000/messages');
     expect(res.status).toBe(404);
   });
+
+  test('should reject message with missing content', async () => {
+    const res = await request(app).post(`/private-chats/${chatId}/message`).send({
+      senderId: user1Id
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.text.toLowerCase()).toMatch(/content is required/i);
+  });
+
+  test('should allow sending image message', async () => {
+    const res = await request(app).post(`/private-chats/${chatId}/message`).send({
+      senderId: user1Id,
+      content: 'Image msg',
+      imageUrl: 'https://cdn.example.com/img.jpg'
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.imageUrl).toBe('https://cdn.example.com/img.jpg');
+  });
+
 });

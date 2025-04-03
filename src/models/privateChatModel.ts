@@ -1,18 +1,21 @@
 // src/models/PrivateChat_model.ts
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model, Document, Types } from 'mongoose';
 import { IMessage, MessageSchema } from './messageModel';
 
 export interface IPrivateChat extends Document {
-  participants: [string, string]; // two user IDs
+  participants: Types.ObjectId[];// two user IDs
   messages: IMessage[];
 }
 
 const PrivateChatSchema = new Schema<IPrivateChat>(
   {
     participants: {
-      type: [String],
-      required: true,
-      validate: [(val: string[]) => val.length === 2, 'Exactly two participants required']
+      type: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+      validate: {
+        validator: (v: Types.ObjectId[]) => v.length === 2,
+        message: 'Exactly two participants required'
+      },
+      required: true
     },
     messages: [MessageSchema]
   },
