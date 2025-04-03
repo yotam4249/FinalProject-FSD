@@ -4,6 +4,7 @@ import EventModel from '../models/privateEventModel';
 import { BaseChatController } from './baseChat_controller';
 import { Request, Response } from 'express';
 import { IMessage } from '../models/messageModel';
+import { Types } from 'mongoose';
 
 type EventChatDocumentSubset = {
   messages: IMessage[];
@@ -47,42 +48,90 @@ class EventChatController extends BaseChatController<EventChatDocumentSubset> {
 
   /**
    * Send a message to an event chat
-   */
+  //  */
+  // public sendMessage = async (req: Request, res: Response) => {
+  //   try {
+  //     const { chatId } = req.params;
+  //     const { senderId, content, imageUrl } = req.body;
+
+  //     const chat = await EventChatModel.findById(chatId);
+  //     if (!chat) return res.status(404).send('Chat not found');
+
+  //     const event = await EventModel.findById(chat.eventId);
+  //     if (!event) return res.status(404).send('Associated event not found');
+
+  //     if (event.expiresAt < new Date()) {
+  //       return res.status(403).send('Chat expired');
+  //     }
+
+  //     if (!chat.owner || chat.owner.toString() !== senderId.toString()) {
+  //       return res.status(403).send('Only the event owner can send messages');
+  //     }
+
+  //     const newMessage: IMessage = {
+  //       senderId,
+  //       content,
+  //       imageUrl,
+  //       timestamp: new Date()
+  //     };
+
+  //     chat.messages.push(newMessage);
+  //     await chat.save();
+
+  //     res.status(200).json(newMessage);
+  //   } catch (err) {
+  //     console.error('Error sending message to event chat:', err);
+  //     res.status(500).send('Server error');
+  //   }
+  // };
   public sendMessage = async (req: Request, res: Response) => {
     try {
       const { chatId } = req.params;
       const { senderId, content, imageUrl } = req.body;
-
+  
+      console.log('📩 Incoming message:', { chatId, senderId, content });
+  
       const chat = await EventChatModel.findById(chatId);
-      if (!chat) return res.status(404).send('Chat not found');
-
+      if (!chat) {
+        console.log('❌ Chat not found');
+        return res.status(404).send('Chat not found');
+      }
+  
       const event = await EventModel.findById(chat.eventId);
-      if (!event) return res.status(404).send('Associated event not found');
-
+      if (!event) {
+        console.log('❌ Event not found');
+        return res.status(404).send('Associated event not found');
+      }
+  
       if (event.expiresAt < new Date()) {
+        console.log('⏰ Event expired');
         return res.status(403).send('Chat expired');
       }
-
+  
+      console.log('👤 Comparing owner:', chat.owner?.toString(), 'vs', senderId.toString());
       if (!chat.owner || chat.owner.toString() !== senderId.toString()) {
+        console.log('❌ Sender is not the owner');
         return res.status(403).send('Only the event owner can send messages');
       }
-
+  
       const newMessage: IMessage = {
         senderId,
         content,
         imageUrl,
         timestamp: new Date()
       };
-
+  
       chat.messages.push(newMessage);
       await chat.save();
-
+  
       res.status(200).json(newMessage);
     } catch (err) {
-      console.error('Error sending message to event chat:', err);
+      console.error('❌ Error sending message to event chat:', err);
       res.status(500).send('Server error');
     }
   };
+  
+  
 }
 
 export const eventChatController = new EventChatController();

@@ -31,6 +31,7 @@ const testUser:User = {
     username:"testusername",
     email:"test@user.com",
     password:"testpassword",
+    phone: '0501234567'
 }
 
 describe('User tests',()=>{
