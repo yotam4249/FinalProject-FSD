@@ -11,7 +11,7 @@ import businessChatRoutes from './routes/businessChat_routes';
 import privateChatRoutes from './routes/privateChat_routes';
 import eventChatRoutes from "./routes/privateEventChat_routes"
 import eventRoutes from './routes/privateEvent_routes';
-
+import userLocationRoutes from './routes/userLocation_routes';
 const app = express()
 dotenv.config();
 app.use(express.json())
@@ -27,6 +27,7 @@ app.use("/business-chats",businessChatRoutes)
 app.use('/private-chats', privateChatRoutes)
 app.use('/event-chats', eventChatRoutes);
 app.use('/events', eventRoutes);
+app.use("/user-location", userLocationRoutes);
 
 
 const initApp = ()=>{
